@@ -276,9 +276,56 @@ function formatResult(result, type, originalQuery) {
   }
 
   if (type === 'LINEAGE') {
-    const nodes = result?.nodes || result?.entity?.lineage?.nodes
-    if (!nodes || !nodes.length) return 'Lineage data unavailable — the entity may not have upstream/downstream connections configured.'
-    return `Lineage graph loaded: ${nodes.length} nodes connected.`
+    // The lineage API returns the entity + edges (upstreamEdges / downstreamEdges)
+    // Nodes may be absent even when the call succeeds (sandbox has no ingested lineage)
+    const entity   = result?.entity
+    const upstream  = result?.upstreamEdges   || []
+    const downstream = result?.downstreamEdges || []
+    const nodes    = result?.nodes            || []
+
+    // If we got back an entity object, show what we know
+    if (entity?.name || entity?.fullyQualifiedName) {
+      const fqn  = entity.fullyQualifiedName || entity.name
+      const type = entity.type || 'entity'
+      const upCount   = upstream.length
+      const downCount = downstream.length
+      const nodeCount = nodes.length
+
+      if (upCount === 0 && downCount === 0) {
+        return `Lineage scan complete for ${type}: "${fqn}"
+
+• Upstream sources:   0  (no ingested lineage in this sandbox)
+• Downstream targets: 0
+• Total nodes:        ${nodeCount}
+
+ℹ️  This entity exists in the catalog but has no lineage edges recorded yet. In a production OpenMetadata instance, lineage is auto-populated by dbt, Airflow, Spark, or manual tagging during ingestion.`
+      }
+
+      const upList   = upstream.slice(0,4).map(e => `  ↑ ${e.fromEntity?.fqn || e.fromEntity?.id || 'source'}`).join('\n')
+      const downList = downstream.slice(0,4).map(e => `  ↓ ${e.toEntity?.fqn || e.toEntity?.id || 'target'}`).join('\n')
+
+      return `Lineage graph for "${fqn}" [${type}]
+
+Upstream (${upCount}):
+${upList || '  none'}
+
+Downstream (${downCount}):
+${downList || '  none'}
+
+Total graph nodes: ${nodeCount}`
+    }
+
+    // Fallback: lineage call failed or returned nothing — pivot to discovery
+    const hits = result?.hits?.hits || []
+    if (hits.length) {
+      const list = hits.slice(0, 5).map(h => {
+        const s = h._source || {}
+        return `• ${s.name || s.displayName || 'Unknown'}  [${s.entityType || 'entity'}]`
+      }).join('\n')
+      return `Found ${hits.length} related entities (lineage API returned no graph for this query):\n\n${list}\n\nTip: Try searching by exact table name for lineage, e.g. "lineage for dim_customer"`
+    }
+
+    return 'No lineage data found. The OpenMetadata sandbox uses sample data with minimal lineage configuration. Try a production instance with dbt or Airflow ingestion enabled.'
   }
 
   return JSON.stringify(result, null, 2).slice(0, 600)

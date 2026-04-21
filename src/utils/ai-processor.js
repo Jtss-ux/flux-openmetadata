@@ -19,9 +19,15 @@ const INTENTS = [
       const entity = res?.hits?.hits?.[0]?._source
       if (entity?.id) {
         try {
-          return await getEntityLineage(entity.entityType || 'table', entity.id)
-        } catch { return res }
+          // Return the lineage API response (entity + edges) — even if edges are empty
+          const lineage = await getEntityLineage(entity.entityType || 'table', entity.id)
+          return lineage
+        } catch {
+          // Lineage call failed (e.g. entity type not supported) — return search results
+          return res
+        }
       }
+      // No entity found — return the search results for the fallback formatter
       return res
     },
   },
