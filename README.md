@@ -141,7 +141,8 @@ python demo.py
 
 ## Live Demo
 
-- **Web App**: `npm run dev` → http://localhost:5173  
+- **Web App (Primary)**: https://truthly-blue.vercel.app
+- **Web App (Backup)**: https://huggingface.co/spaces/jtsvize/flux-openmetadata
 - **OpenMetadata Sandbox**: https://sandbox.open-metadata.org  
 - **MCP Tools Demo**: `python openmetadata-mcp-server/demo.py`
 
