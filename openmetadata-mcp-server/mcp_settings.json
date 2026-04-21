@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "openmetadata": {
+      "command": "python",
+      "args": ["-m", "openmetadata_mcp.server"],
+      "env": {
+        "OPENMETADATA_HOST": "http://localhost:8585",
+        "OPENMETADATA_AUTH_TOKEN": "your-token-here"
+      }
+    }
+  }
+}
