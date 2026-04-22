@@ -11,14 +11,14 @@ import { searchEntities, getEntityLineage } from '../api/openmetadata'
 const INTENTS = [
   {
     type: 'GREETING',
-    tool: null,
+    tool: 'llm_chat',
     patterns: ['hi', 'hello', 'hey', 'greetings', 'what can you do', 'help', 'who are you', 'hola', 'bonjour', 'namaste', 'sup'],
     message: 'Greetings, time traveler! I am FLUX://, your conversational metadata navigator. I can help you trace data lineage, check data quality, or search for any asset across your entire OpenMetadata catalog. What data concerns can I help you solve today?',
     action: async () => null,
   },
   {
     type: 'FEELINGS',
-    tool: null,
+    tool: 'llm_chat',
     patterns: ['how are you', 'hru', 'feelings', 'what are you feeling', 'how do you feel', 'how have you been', 'whats up', "what's up"],
     message: 'I am operating at peak efficiency, though my chronometer detects a slight temporal drift today. My circuits are fully energized and ready to navigate your data catalog!',
     action: async () => null,
@@ -108,7 +108,7 @@ export const processUserQuery = async (query) => {
   // Default: General Chat (Fallback to LLM)
   return {
     type: 'GENERAL_CHAT',
-    tool: null,
+    tool: 'llm_chat',
     message: null, // No scanning message needed for casual chat
     action: async () => query, // Pass the query through to the App.jsx LLM handler
   }
