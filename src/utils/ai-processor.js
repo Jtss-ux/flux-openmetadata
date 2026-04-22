@@ -101,7 +101,7 @@ export const processUserQuery = async (query) => {
   // Default: General Chat (Fallback to LLM)
   return {
     type: 'GENERAL_CHAT',
-    tool: 'llm_chat',
+    tool: null,
     message: null, // No scanning message needed for casual chat
     action: async () => query, // Pass the query through to the App.jsx LLM handler
   }
