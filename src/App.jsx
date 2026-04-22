@@ -75,6 +75,12 @@ function App() {
         }])
       }
 
+      // If it's just a greeting, we already showed the message. We can stop here.
+      if (intent.type === 'GREETING') {
+        setTimeout(() => setIsProcessing(false), 300)
+        return
+      }
+
       /* Execute the metadata or chat action */
       const result = await intent.action()
       let reply = ''
