@@ -2,7 +2,7 @@
 title: FLUX:// Data Navigator
 emoji: ⚡
 colorFrom: blue
-colorTo: cyan
+colorTo: blue
 sdk: static
 pinned: false
 ---
