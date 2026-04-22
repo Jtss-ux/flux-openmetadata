@@ -221,7 +221,7 @@ async def list_pipelines(
         return json.dumps({"error": str(e)}, indent=2)
 
 
-async def get_policy(client: OpenMetadataClient, policy_name: str) -> str:
+async def get_policy(client: OpenMetadataClient, policy_name: str = "") -> str:
     """Get governance policies."""
     try:
         policy = await client.get_policy(policy_name)

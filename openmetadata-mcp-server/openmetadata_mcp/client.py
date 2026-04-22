@@ -61,8 +61,8 @@ class OpenMetadataClient:
     ) -> dict[str, Any]:
         """Get lineage for an entity."""
         response = await self._client.get(
-            f"/{entity_type}/name/{fqn}/lineage",
-            params={"direction": direction},
+            f"/lineage/{entity_type}/name/{fqn}",
+            params={"upstreamDepth": 2, "downstreamDepth": 2},
         )
         response.raise_for_status()
         return response.json()
@@ -70,19 +70,19 @@ class OpenMetadataClient:
     async def get_table_tests(self, fqn: str) -> dict[str, Any]:
         """Get data quality tests for a table."""
         response = await self._client.get(
-            f"/table/name/{fqn}/testCaseResults",
-            params={"limit": 50},
+            f"/dataQuality/testCases",
+            params={"entityLink": f"<#E::table::{fqn}>", "limit": 50},
         )
         response.raise_for_status()
         return response.json()
 
     async def list_pipelines(self, status: Optional[str] = None, limit: int = 10) -> dict[str, Any]:
-        """List pipelines with optional status filter."""
-        params = {"from": 0, "size": limit}
+        """List ingestion pipelines with optional status filter."""
+        params = {"limit": limit}
         if status and status != "all":
             params["pipelineStatus"] = status
 
-        response = await self._client.get("/pipeline/services", params=params)
+        response = await self._client.get("/ingestionPipelines", params=params)
         response.raise_for_status()
         return response.json()
 
