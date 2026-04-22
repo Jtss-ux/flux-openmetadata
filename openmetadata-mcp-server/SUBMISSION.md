@@ -85,6 +85,13 @@ Run `python demo.py` to see example outputs of all 6 tools.
 - **GitHub**: https://github.com/Jtss-ux/flux-openmetadata
 - **OpenMetadata Sandbox**: https://sandbox.open-metadata.org
 
+## Contribution Track (OpenMetadata Issue #26265)
+
+As part of this hackathon, I have also contributed a bug fix to the core OpenMetadata repository addressing ClickHouse MATERIALIZED VIEW TO lineage extraction.
+
+- **Pull Request**: https://github.com/open-metadata/OpenMetadata/pull/27628
+- **Issue**: https://github.com/open-metadata/OpenMetadata/issues/26265
+
 ---
 
 **Submission for OpenMetadata Back to the Future Hackathon 2026**

@@ -52,12 +52,15 @@ AI Agent ←→ MCP Protocol ←→ OpenMetadata MCP Server ←→ OpenMetadata 
 ### 1. Run the Web App
 
 ```bash
+# Create a .env file for the conversational fallback (optional)
+echo "VITE_GEMINI_API_KEY=your_gemini_key_here" > .env
+
 npm install
 npm run dev
 # → http://localhost:5173
 ```
 
-> The Vite dev server proxies `/api` to the OpenMetadata sandbox automatically.
+> The Vite dev server proxies `/api` to the OpenMetadata sandbox automatically. The Gemini API key allows the UI to fall back to conversational chat when you ask questions unrelated to metadata.
 
 ### 2. Run the MCP Server
 

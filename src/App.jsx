@@ -66,23 +66,48 @@ function App() {
 
     try {
       const intent = await processUserQuery(q)
-      /* Show AI reaction immediately */
-      setMessages(prev => [...prev, {
-        role: 'assistant',
-        text: intent.message,
-        tool: intent.tool,
-      }])
+      if (intent.message) {
+        /* Show AI reaction immediately */
+        setMessages(prev => [...prev, {
+          role: 'assistant',
+          text: intent.message,
+          tool: intent.tool,
+        }])
+      }
 
-      /* Execute the metadata action */
+      /* Execute the metadata or chat action */
       const result = await intent.action()
-      const reply  = formatResult(result, intent.type, q)
+      let reply = ''
+      
+      if (intent.type === 'GENERAL_CHAT') {
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+        if (!apiKey) {
+          reply = "I am FLUX://, your OpenMetadata navigator! I currently operate within the boundaries of your data catalog. (To enable general conversational AI, add `VITE_GEMINI_API_KEY` to your environment variables)."
+        } else {
+          try {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                contents: [{ parts: [{ text: `You are FLUX://, a retro-futuristic data navigator chatbot. Keep your response concise and slightly sci-fi themed. The user says: ${result}` }] }]
+              })
+            })
+            const data = await res.json()
+            reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "My language processors are experiencing interference."
+          } catch (e) {
+            reply = "I encountered temporal interference while trying to process that conversational request."
+          }
+        }
+      } else {
+        reply = formatResult(result, intent.type, q)
+      }
 
       setTimeout(() => {
         setMessages(prev => [...prev, {
           role: 'assistant',
           text: reply,
           tool: intent.tool,
-          data: result,
+          data: intent.type === 'GENERAL_CHAT' ? null : result,
         }])
         setIsProcessing(false)
       }, 600)

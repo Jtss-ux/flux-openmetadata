@@ -10,6 +10,13 @@ import { searchEntities, getEntityLineage } from '../api/openmetadata'
  */
 const INTENTS = [
   {
+    type: 'GREETING',
+    tool: null,
+    patterns: ['hi', 'hello', 'hey', 'greetings', 'how are you', 'what can you do', 'help', 'who are you'],
+    message: 'Greetings, time traveler! I am FLUX://, your conversational metadata navigator. I can help you trace data lineage, check data quality, or search for any asset across your entire OpenMetadata catalog. What data concerns can I help you solve today?',
+    action: async () => null,
+  },
+  {
     type: 'LINEAGE',
     tool: 'get_table_lineage',
     patterns: ['lineage', 'where does', 'data flow', 'upstream', 'downstream', 'source of', 'feeds into', 'depend'],
@@ -61,13 +68,15 @@ const INTENTS = [
   },
 ]
 
+const DATA_KEYWORDS = ['table', 'lineage', 'quality', 'govern', 'dashboard', 'database', 'schema', 'column', 'data', 'pipeline', 'metric', 'view', 'model', 'dbt', 'airflow', 'find', 'search', 'show me']
+
 /**
  * Process a user query and return intent + action.
  */
 export const processUserQuery = async (query) => {
   const lower = query.toLowerCase()
 
-  // Match intent
+  // Match specific intents
   for (const intent of INTENTS) {
     if (intent.patterns.some(p => lower.includes(p))) {
       return {
@@ -79,11 +88,21 @@ export const processUserQuery = async (query) => {
     }
   }
 
-  // Default: discovery search
+  // If the query contains data-related keywords, assume it's a discovery search
+  if (DATA_KEYWORDS.some(k => lower.includes(k))) {
+    return {
+      type: 'DISCOVERY',
+      tool: 'search_tables',
+      message: `Traveling through the metadata catalog to find: "${query}"...`,
+      action: () => searchEntities(query),
+    }
+  }
+
+  // Default: General Chat (Fallback to LLM)
   return {
-    type: 'DISCOVERY',
-    tool: 'search_tables',
-    message: `Traveling through the metadata catalog to find: "${query}"...`,
-    action: () => searchEntities(query),
+    type: 'GENERAL_CHAT',
+    tool: 'llm_chat',
+    message: null, // No scanning message needed for casual chat
+    action: async () => query, // Pass the query through to the App.jsx LLM handler
   }
 }
