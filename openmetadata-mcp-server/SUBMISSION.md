@@ -78,6 +78,13 @@ Run `python demo.py` to see example outputs of all 6 tools.
 4. **Best Use of OpenMetadata**: Deep integration with search, lineage, quality, governance
 5. **User Experience**: Simple to install, configure, and use
 
+## Live Demo
+
+- **Web App (Primary)**: https://truthly-blue.vercel.app
+- **Web App (Backup)**: https://huggingface.co/spaces/jtsvize/flux-openmetadata
+- **GitHub**: https://github.com/Jtss-ux/flux-openmetadata
+- **OpenMetadata Sandbox**: https://sandbox.open-metadata.org
+
 ---
 
 **Submission for OpenMetadata Back to the Future Hackathon 2026**
