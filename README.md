@@ -1,3 +1,12 @@
+---
+title: FLUX:// Data Navigator
+emoji: ⚡
+colorFrom: blue
+colorTo: cyan
+sdk: static
+pinned: false
+---
+
 # FLUX:// Conversational Data Navigator
 ### OpenMetadata OUTATIME Hackathon 2026 · Track: Paradox #T-01 — MCP Ecosystem & AI Agents
 
