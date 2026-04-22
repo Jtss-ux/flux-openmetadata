@@ -75,8 +75,8 @@ function App() {
         }])
       }
 
-      // If it's just a greeting, we already showed the message. We can stop here.
-      if (intent.type === 'GREETING') {
+      // If it's just a greeting or feeling, we already showed the message. We can stop here.
+      if (intent.type === 'GREETING' || intent.type === 'FEELINGS') {
         setTimeout(() => setIsProcessing(false), 300)
         return
       }
