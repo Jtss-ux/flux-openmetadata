@@ -86,7 +86,7 @@ function App() {
       let reply = ''
       
       if (intent.type === 'GENERAL_CHAT') {
-        const apiKey = import.meta.env.VITE_GEMINI_API_KEY
+        const apiKey = import.meta.env.VITE_GEMINI_API_KEY?.trim()
         if (!apiKey) {
           reply = "I am FLUX://, your OpenMetadata navigator! I currently operate within the boundaries of your data catalog. (To enable general conversational AI, add `VITE_GEMINI_API_KEY` to your environment variables)."
         } else {
