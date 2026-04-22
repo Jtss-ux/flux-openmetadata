@@ -292,7 +292,7 @@ function App() {
 function formatResult(result, type, originalQuery) {
   if (!result) return 'No data found in the metadata timeline for this query.'
 
-  if (type === 'DISCOVERY' || type === 'GENERAL') {
+  if (['DISCOVERY', 'GENERAL', 'QUALITY', 'GOVERNANCE', 'PIPELINE', 'DASHBOARD'].includes(type)) {
     const hits = result?.hits?.hits || []
     if (!hits.length) {
       return `No entities found matching "${originalQuery}" in the OpenMetadata catalog. Try a broader term.`
