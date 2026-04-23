@@ -21,13 +21,15 @@ const SUGGESTIONS = [
 function App() {
   const [query, setQuery]           = useState('')
   const [activeNav, setActiveNav]   = useState('chat')
-  const [messages, setMessages]     = useState([
-    {
+  const [messages, setMessages]     = useState(() => {
+    const saved = localStorage.getItem('flux_chat_history');
+    if (saved) return JSON.parse(saved);
+    return [{
       role: 'assistant',
       text: 'GREAT SCOTT! I am FLUX:// — your Conversational Metadata Navigator, powered by the OpenMetadata MCP Server.\n\nI can search data assets, trace lineage, check data quality, and surface governance policies. Ask me anything about your data catalog.',
       tool: null,
-    }
-  ])
+    }];
+  })
   const [isProcessing, setIsProcessing] = useState(false)
   const [stats, setStats] = useState({
     entities: '—',
@@ -37,9 +39,10 @@ function App() {
   })
   const chatEndRef = useRef(null)
 
-  /* Scroll to bottom on new message */
+  /* Scroll to bottom & sync local storage on new message */
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    localStorage.setItem('flux_chat_history', JSON.stringify(messages))
   }, [messages])
 
   /* Fetch live entity count from sandbox */
@@ -67,10 +70,11 @@ function App() {
     try {
       const intent = await processUserQuery(q)
       if (intent.message) {
+        const msgText = typeof intent.message === 'function' ? intent.message(q) : intent.message;
         /* Show AI reaction immediately */
         setMessages(prev => [...prev, {
           role: 'assistant',
-          text: intent.message,
+          text: msgText,
           tool: intent.tool,
         }])
       }
@@ -275,7 +279,13 @@ function App() {
           <div className="footer-items">
             <span className="footer-item">SYSTEM: ONLINE</span>
             <span className="footer-item cyan">MCP: CONNECTED</span>
-            <span className="footer-item">BUFFER: 1.21GW</span>
+            <button 
+              className="footer-item" 
+              onClick={() => { localStorage.removeItem('flux_chat_history'); window.location.reload(); }} 
+              style={{background: 'transparent', border: '1px solid rgba(255,68,68,0.3)', color: '#ff4444', cursor: 'pointer', borderRadius: '4px', padding: '0 6px', fontSize: '0.6rem'}}
+            >
+              CLEAR LOCAL DB
+            </button>
           </div>
           <div className="footer-items">
             <span className="footer-item">LATENCY: 12ms</span>

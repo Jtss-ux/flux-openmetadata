@@ -8,19 +8,55 @@ import { searchEntities, getEntityLineage } from '../api/openmetadata'
 /**
  * Intent patterns for query routing.
  */
+const HIGH_ENERGY_GREETINGS = [
+  "GREAT SCOTT! HELLLOOOO! My circuits are buzzing with your energy! What can I navigate for you today?",
+  "WOOHOO! Greetings, enthusiastic time traveler! The flux capacitor is fully charged! How can I assist?",
+  "GREETINGS!!! I am detecting massive temporal energy from your message! Let's search some data!",
+]
+
+const NORMAL_GREETINGS = [
+  "Greetings, time traveler! I am FLUX://, your conversational metadata navigator. I can help you trace data lineage, check data quality, or search for any asset across your entire OpenMetadata catalog. What data concerns can I help you solve today?",
+  "Hello there! My sensors are fully active. Need to trace some data lineage or find a specific dashboard?",
+  "Initiating handshake protocol... Hello! I'm FLUX://, ready to search the metadata universe. What are we looking for?",
+  "Temporal systems online. Hi! I'm here to assist you with data quality, governance, and discovery. Ask away!",
+]
+
+const HIGH_ENERGY_FEELINGS = [
+  "I AM OPERATING AT MAXIMUM OVERDRIVE! THE FLUX CAPACITOR IS SURGING! LET'S GOOO!",
+  "INCREDIBLE! My chronometers are spinning out of control! I feel absolutely electric!",
+]
+
+const NORMAL_FEELINGS = [
+  "I am operating at peak efficiency, though my chronometer detects a slight temporal drift today. My circuits are fully energized and ready to navigate your data catalog!",
+  "Diagnostics show 100% operational capacity. I'm feeling quite analytical today!",
+  "My language processors and temporal drives are perfectly synced. I'm doing great, thank you for asking!",
+]
+
+function getEnergyLevel(text) {
+  // Check for repeated letters (e.g. hiiii, heyyy) or multiple exclamation marks
+  const hasExclamations = (text.match(/!{2,}/g) || []).length > 0;
+  const hasRepeats = (text.match(/([a-zA-Z])\1{2,}/g) || []).length > 0;
+  const isAllUpperCase = text === text.toUpperCase() && text.length > 3;
+  return hasExclamations || hasRepeats || isAllUpperCase ? 'HIGH' : 'NORMAL';
+}
+
+function getRandomResponse(array) {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 const INTENTS = [
   {
     type: 'GREETING',
     tool: 'llm_chat',
     patterns: ['hi', 'hello', 'hey', 'greetings', 'what can you do', 'help', 'who are you', 'hola', 'bonjour', 'namaste', 'sup'],
-    message: 'Greetings, time traveler! I am FLUX://, your conversational metadata navigator. I can help you trace data lineage, check data quality, or search for any asset across your entire OpenMetadata catalog. What data concerns can I help you solve today?',
+    message: (q) => getEnergyLevel(q) === 'HIGH' ? getRandomResponse(HIGH_ENERGY_GREETINGS) : getRandomResponse(NORMAL_GREETINGS),
     action: async () => null,
   },
   {
     type: 'FEELINGS',
     tool: 'llm_chat',
     patterns: ['how are you', 'hru', 'feelings', 'what are you feeling', 'how do you feel', 'how have you been', 'whats up', "what's up"],
-    message: 'I am operating at peak efficiency, though my chronometer detects a slight temporal drift today. My circuits are fully energized and ready to navigate your data catalog!',
+    message: (q) => getEnergyLevel(q) === 'HIGH' ? getRandomResponse(HIGH_ENERGY_FEELINGS) : getRandomResponse(NORMAL_FEELINGS),
     action: async () => null,
   },
   {
