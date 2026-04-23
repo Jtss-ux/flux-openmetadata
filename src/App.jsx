@@ -28,6 +28,7 @@ function App() {
       role: 'assistant',
       text: 'GREAT SCOTT! I am FLUX:// — your Conversational Metadata Navigator, powered by the OpenMetadata MCP Server.\n\nI can search data assets, trace lineage, check data quality, and surface governance policies. Ask me anything about your data catalog.',
       tool: null,
+      ts: Date.now(),
     }];
   })
   const [isProcessing, setIsProcessing] = useState(false)
@@ -63,7 +64,7 @@ function App() {
     const q = text.trim()
     if (!q || isProcessing) return
 
-    setMessages(prev => [...prev, { role: 'user', text: q, tool: null }])
+    setMessages(prev => [...prev, { role: 'user', text: q, tool: null, ts: Date.now() }])
     setIsProcessing(true)
     setQuery('')
 
@@ -76,6 +77,7 @@ function App() {
           role: 'assistant',
           text: msgText,
           tool: intent.tool,
+          ts: Date.now(),
         }])
       }
 
@@ -118,6 +120,7 @@ function App() {
           text: reply,
           tool: intent.tool,
           data: intent.type === 'GENERAL_CHAT' ? null : result,
+          ts: Date.now(),
         }])
         setIsProcessing(false)
       }, 600)
@@ -127,6 +130,7 @@ function App() {
         role: 'assistant',
         text: '⚠ TEMPORAL PARADOX DETECTED — Unable to reach the OpenMetadata sandbox. The flux capacitor may need recalibrating.\n\nTip: Make sure `npm run dev` is running so the /api proxy is active.',
         tool: null,
+        ts: Date.now(),
       }])
       setIsProcessing(false)
     }
@@ -267,6 +271,8 @@ function App() {
                 className="chat-send-btn"
                 onClick={() => handleSend()}
                 disabled={isProcessing || !query.trim()}
+                aria-label="Send message"
+                title="Send (Enter)"
               >
                 <Send size={20}/>
               </button>
@@ -279,10 +285,14 @@ function App() {
           <div className="footer-items">
             <span className="footer-item">SYSTEM: ONLINE</span>
             <span className="footer-item cyan">MCP: CONNECTED</span>
+            <span className="footer-item" style={{color: 'rgba(0,255,255,0.35)'}}>
+              {messages.length} MSG{messages.length !== 1 ? 'S' : ''}
+            </span>
             <button 
               className="footer-item" 
               onClick={() => { localStorage.removeItem('flux_chat_history'); window.location.reload(); }} 
               style={{background: 'transparent', border: '1px solid rgba(255,68,68,0.3)', color: '#ff4444', cursor: 'pointer', borderRadius: '4px', padding: '0 6px', fontSize: '0.6rem'}}
+              title="Clear chat history from local storage"
             >
               CLEAR LOCAL DB
             </button>
@@ -384,13 +394,15 @@ function StatBox({ label, value, color }) {
 function ChatMessage({ msg }) {
   const isBot = msg.role === 'assistant'
   const lines = (msg.text || '').split('\n')
-  /* Detect if message contains a JSON/code block */
-  const hasCode = msg.text && msg.text.includes('{')
+  const timeStr = msg.ts ? new Date(msg.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
 
   return (
     <div className={`bubble-wrap ${isBot ? 'bot' : 'user'}`}>
       <div className={`bubble ${isBot ? 'bot' : 'user'}`}>
-        <span className="bubble-tag">{isBot ? 'Flux Navigator' : 'Temporal User'}</span>
+        <span className="bubble-tag">
+          {isBot ? 'Flux Navigator' : 'Temporal User'}
+          {timeStr && <span style={{ marginLeft: '0.5rem', opacity: 0.5 }}>{timeStr}</span>}
+        </span>
 
         {lines.map((line, i) => (
           <span key={i} style={{ display: 'block' }}>
