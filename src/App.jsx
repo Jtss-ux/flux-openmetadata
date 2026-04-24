@@ -104,7 +104,7 @@ function App() {
               promptText += `\n\nHere is some documentation retrieved from the database that might be relevant:\n${docsContext}\n\nPlease answer the user's query. Use the provided documentation if it is relevant and reliable, but also feel free to use your own broad knowledge if needed to give the best answer. Cite the sources if you use the provided documentation.`;
             }
 
-            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+            const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
