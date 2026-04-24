@@ -91,17 +91,24 @@ function App() {
       const result = await intent.action()
       let reply = ''
       
-      if (intent.type === 'GENERAL_CHAT') {
+      if (intent.type === 'GENERAL_CHAT' || intent.type === 'DOCUMENTATION') {
         const apiKey = import.meta.env.VITE_GEMINI_API_KEY?.trim()
         if (!apiKey) {
-          reply = "I am FLUX://, your OpenMetadata navigator! I currently operate within the boundaries of your data catalog. (To enable general conversational AI, add `VITE_GEMINI_API_KEY` to your environment variables)."
+          reply = "I am FLUX://, your OpenMetadata navigator! I currently operate within the boundaries of your data catalog. (To enable general conversational AI or RAG documentation, add `VITE_GEMINI_API_KEY` to your environment variables)."
         } else {
           try {
+            let promptText = `You are FLUX://, a retro-futuristic data navigator chatbot. Keep your response concise, helpful, and slightly sci-fi themed. The user says: "${q}"`;
+            
+            if (intent.type === 'DOCUMENTATION') {
+              const docsContext = result.map(doc => `[Source: ${doc.title || doc.url}]\n${doc.content}`).join('\n\n');
+              promptText += `\n\nHere is some documentation retrieved from the database that might be relevant:\n${docsContext}\n\nPlease answer the user's query. Use the provided documentation if it is relevant and reliable, but also feel free to use your own broad knowledge if needed to give the best answer. Cite the sources if you use the provided documentation.`;
+            }
+
             const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                contents: [{ parts: [{ text: `You are FLUX://, a retro-futuristic data navigator chatbot. Keep your response concise and slightly sci-fi themed. The user says: ${result}` }] }]
+                contents: [{ parts: [{ text: promptText }] }]
               })
             })
             const data = await res.json()
@@ -383,18 +390,94 @@ Total graph nodes: ${nodeCount}`
 }
 
 function StatBox({ label, value, color }) {
+  // Simple animated counter effect on mount
+  const [displayVal, setDisplayVal] = useState(0)
+  const numericMatch = typeof value === 'string' ? value.replace(/,/g, '').match(/[\d.]+/) : null
+  const target = numericMatch ? parseFloat(numericMatch[0]) : null
+
+  useEffect(() => {
+    if (target === null || isNaN(target)) {
+      setDisplayVal(value)
+      return
+    }
+    let start = 0
+    const duration = 1500 // 1.5s boot sequence
+    const startTime = performance.now()
+
+    const animate = (currTime) => {
+      const elapsed = currTime - startTime
+      const progress = Math.min(elapsed / duration, 1)
+      const current = Math.floor(progress * target)
+      
+      // Format back with the same suffix/prefix if needed, or just format number
+      let formatted = current.toLocaleString()
+      if (typeof value === 'string') {
+        if (value.includes('%')) formatted += '%'
+        if (value.includes('s') && !value.includes('s')) formatted += 's'
+      }
+      
+      // Add 's' suffix if it was in the original
+      if (typeof value === 'string' && value.endsWith('s')) formatted += 's'
+      if (typeof value === 'string' && value.includes('.')) {
+        // Keep decimals for things like drift
+        formatted = (progress * target).toFixed(value.split('.')[1]?.length || 1)
+        if (value.endsWith('s')) formatted += 's'
+        if (value.endsWith('%')) formatted += '%'
+      }
+
+      setDisplayVal(formatted)
+
+      if (progress < 1) {
+        requestAnimationFrame(animate)
+      } else {
+        setDisplayVal(value)
+      }
+    }
+    requestAnimationFrame(animate)
+  }, [value, target])
+
   return (
-    <div className="glass-panel stat-box">
+    <div className="glass-panel stat-box glitch-hover">
       <span className="stat-label">{label}</span>
-      <span className={`stat-value ${color}`}>{value}</span>
+      <span className={`stat-value ${color}`}>{displayVal}</span>
     </div>
+  )
+}
+
+function TypewriterText({ text }) {
+  const [displayed, setDisplayed] = useState('')
+
+  useEffect(() => {
+    let i = 0
+    const timer = setInterval(() => {
+      setDisplayed(text.slice(0, i))
+      i += 3 // 3 chars at a time for fast retro feel
+      if (i > text.length + 3) {
+        clearInterval(timer)
+      }
+    }, 15)
+    return () => clearInterval(timer)
+  }, [text])
+
+  const lines = displayed.split('\n')
+  return (
+    <>
+      {lines.map((line, i) => (
+        <span key={i} style={{ display: 'block' }}>
+          {line || '\u00A0'}
+        </span>
+      ))}
+    </>
   )
 }
 
 function ChatMessage({ msg }) {
   const isBot = msg.role === 'assistant'
-  const lines = (msg.text || '').split('\n')
   const timeStr = msg.ts ? new Date(msg.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''
+  const isRecent = msg.ts && (Date.now() - msg.ts < 5000)
+
+  // Only typewrite if it's a bot message AND it's less than 5 seconds old (new message)
+  const shouldTypewrite = isBot && isRecent
 
   return (
     <div className={`bubble-wrap ${isBot ? 'bot' : 'user'}`}>
@@ -404,14 +487,18 @@ function ChatMessage({ msg }) {
           {timeStr && <span style={{ marginLeft: '0.5rem', opacity: 0.5 }}>{timeStr}</span>}
         </span>
 
-        {lines.map((line, i) => (
-          <span key={i} style={{ display: 'block' }}>
-            {line || '\u00A0'}
-          </span>
-        ))}
+        {shouldTypewrite ? (
+          <TypewriterText text={msg.text || ''} />
+        ) : (
+          (msg.text || '').split('\n').map((line, i) => (
+            <span key={i} style={{ display: 'block' }}>
+              {line || '\u00A0'}
+            </span>
+          ))
+        )}
 
         {msg.tool && (
-          <div className="tool-badge">
+          <div className="tool-badge active-tool">
             <Zap size={8}/>
             {msg.tool}
           </div>
@@ -422,6 +509,24 @@ function ChatMessage({ msg }) {
 }
 
 function LoadingPulse() {
+  const phrases = [
+    "CALIBRATING TIME VESTIBULE…",
+    "ROUTING THROUGH MCP WORMHOLE…",
+    "BYPASSING MAINFRAME SECURITY…",
+    "ACCESSING TEMPORAL ARCHIVES…",
+    "SCANNING OPENMETADATA FABRIC…",
+  ]
+  const [text, setText] = useState(phrases[0])
+
+  useEffect(() => {
+    let i = 0;
+    const interval = setInterval(() => {
+      i = (i + 1) % phrases.length;
+      setText(phrases[i])
+    }, 1200)
+    return () => clearInterval(interval)
+  }, [])
+
   return (
     <div className="loading-wrap">
       <div className="loading-bubble">
@@ -430,7 +535,7 @@ function LoadingPulse() {
           <div className="dot" />
           <div className="dot" />
         </div>
-        <span className="loading-text">CALIBRATING TIME VESTIBULE…</span>
+        <span className="loading-text glitch-text">{text}</span>
       </div>
     </div>
   )

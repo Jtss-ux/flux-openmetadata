@@ -60,6 +60,26 @@ const INTENTS = [
     action: async () => null,
   },
   {
+    type: 'DOCUMENTATION',
+    tool: 'rag_search',
+    patterns: ['how to', 'how do', 'how does', 'what is', 'explain', 'documentation', 'guide', 'tutorial', 'setup', 'configure', 'error', 'bug'],
+    message: 'Consulting the offline RAG documentation archives...',
+    action: async (q) => {
+      try {
+        const res = await fetch('/api/rag_search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: q, topK: 3 })
+        });
+        const data = await res.json();
+        return data.results;
+      } catch (err) {
+        console.error('RAG Search Failed:', err);
+        return [];
+      }
+    },
+  },
+  {
     type: 'LINEAGE',
     tool: 'get_table_lineage',
     patterns: ['lineage', 'where does', 'data flow', 'upstream', 'downstream', 'source of', 'feeds into', 'depend'],

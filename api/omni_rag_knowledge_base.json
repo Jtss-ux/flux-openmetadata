@@ -1,0 +1,17 @@
+[
+    {
+        "url": "https://docs.open-metadata.org/overview",
+        "title": "OpenMetadata Overview",
+        "content": "OpenMetadata is a unified metadata platform for data discovery, data observability, and data governance. It provides a central metadata repository, column-level lineage, and collaboration features."
+    },
+    {
+        "url": "https://docs.open-metadata.org/lineage",
+        "title": "Lineage in OpenMetadata",
+        "content": "Data Lineage in OpenMetadata allows you to trace data from its origin to its destination. It supports table-level, column-level, and pipeline lineage across tools like dbt, ClickHouse, Airflow, and Snowflake."
+    },
+    {
+        "url": "https://docs.open-metadata.org/connectors/clickhouse",
+        "title": "ClickHouse Connector",
+        "content": "The ClickHouse connector ingests metadata, lineage, and profiler metrics from ClickHouse databases. It supports capturing materialized views and materialized models accurately using regex parsing."
+    }
+]
