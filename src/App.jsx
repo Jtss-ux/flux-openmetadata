@@ -108,7 +108,8 @@ function App() {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                contents: [{ parts: [{ text: promptText }] }]
+                contents: [{ parts: [{ text: promptText }] }],
+                tools: [{ googleSearch: {} }]
               })
             })
             const data = await res.json()
