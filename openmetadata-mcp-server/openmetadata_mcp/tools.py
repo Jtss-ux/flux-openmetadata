@@ -231,7 +231,7 @@ async def get_policy(client: OpenMetadataClient, policy_name: str = "") -> str:
         else:
             policies = [policy] if isinstance(policy, dict) else []
 
-        formatted_policies = []
+        formatted_policies: list[dict[str, Any]] = []
         for p in policies:
             formatted_policies.append({
                 "name": p.get("name"),

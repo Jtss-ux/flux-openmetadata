@@ -28,6 +28,8 @@ AI agents need access to metadata to intelligently interact with enterprise data
 
 - **Universal AI Integration**: Works with Claude Desktop, Cursor, any MCP-compatible AI
 - **Production Ready**: Full async support, error handling, Python 3.11+
+- **Robust Testing**: 15+ unit tests using AsyncMock covering all tools and error cases
+- **Open Source**: MIT Licensed and well-documented
 - **Deep OpenMetadata Integration**: Leverages 120+ connectors, column-level lineage, quality tests
 - **Easy Configuration**: Environment-based config, .env support
 
@@ -44,15 +46,17 @@ AI agents need access to metadata to intelligently interact with enterprise data
 openmetadata-mcp-server/
 ├── pyproject.toml           # Package config
 ├── README.md                 # Full documentation
+├── LICENSE                   # MIT License
 ├── .env.example             # Environment template
 ├── mcp_settings.json       # Claude Desktop config
 ├── demo.py                 # Demo script
-└── openmetadata_mcp/
-    ├── __init__.py
-    ├── config.py           # Server config
-    ├── client.py           # API client
-    ├── tools.py            # Tool implementations
-    └── server.py           # Entry point
+├── openmetadata_mcp/
+│   ├── __init__.py
+│   ├── config.py           # Server config
+│   ├── client.py           # API client
+│   ├── tools.py            # Tool implementations
+│   └── server.py           # Entry point
+└── tests/                   # 15+ Async unit tests
 ```
 
 ## How to Run

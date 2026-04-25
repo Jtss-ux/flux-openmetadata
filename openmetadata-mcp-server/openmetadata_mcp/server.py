@@ -2,11 +2,13 @@
 
 import os
 import asyncio
+import logging
 from typing import Any
 
 from mcp.server import Server
 from mcp.server.stdio import stdio_server
 from mcp.types import Tool, TextContent
+from dotenv import load_dotenv
 
 from openmetadata_mcp.config import ServerConfig
 from openmetadata_mcp.client import OpenMetadataClient
@@ -19,11 +21,19 @@ from openmetadata_mcp.tools import (
     get_policy,
 )
 
+# Configure logging to stderr for MCP compatibility
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler()]
+)
+logger = logging.getLogger("openmetadata-mcp")
+
 
 async def main():
     """Main entry point for the MCP server."""
-    from dotenv import load_dotenv
     load_dotenv()
+    logger.info("Starting OpenMetadata MCP Server...")
 
     server = Server("openmetadata-mcp")
 
@@ -113,6 +123,7 @@ async def main():
         
         async with OpenMetadataClient(config) as client:
             try:
+                logger.info(f"Calling tool: {name} with arguments: {arguments}")
                 match name:
                     case "search_tables":
                         result = await search_tables(client, **arguments)
@@ -127,9 +138,11 @@ async def main():
                     case "get_policy":
                         result = await get_policy(client, **arguments)
                     case _:
+                        logger.warning(f"Unknown tool requested: {name}")
                         return [TextContent(type="text", text=f"Unknown tool: {name}")]
                 return [TextContent(type="text", text=result)]
             except Exception as e:
+                logger.error(f"Error executing tool {name}: {str(e)}", exc_info=True)
                 return [TextContent(type="text", text=f"Error: {str(e)}")]
 
     async with stdio_server() as (read_stream, write_stream):
