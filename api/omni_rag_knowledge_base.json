@@ -2,16 +2,31 @@
     {
         "url": "https://docs.open-metadata.org/overview",
         "title": "OpenMetadata Overview",
-        "content": "OpenMetadata is a unified metadata platform for data discovery, data observability, and data governance. It provides a central metadata repository, column-level lineage, and collaboration features."
+        "content": "OpenMetadata is a unified metadata platform for data discovery, data observability, and data governance. It provides a central metadata repository, column-level lineage, and collaboration features. It is designed to unlock the power of metadata by providing a single source of truth for all data assets."
     },
     {
         "url": "https://docs.open-metadata.org/lineage",
         "title": "Lineage in OpenMetadata",
-        "content": "Data Lineage in OpenMetadata allows you to trace data from its origin to its destination. It supports table-level, column-level, and pipeline lineage across tools like dbt, ClickHouse, Airflow, and Snowflake."
+        "content": "Data Lineage in OpenMetadata allows you to trace data from its origin to its destination. It supports table-level, column-level, and pipeline lineage across tools like dbt, ClickHouse, Airflow, and Snowflake. Users can visualize how data flows through various systems and identify upstream or downstream impacts."
     },
     {
         "url": "https://docs.open-metadata.org/connectors/clickhouse",
         "title": "ClickHouse Connector",
-        "content": "The ClickHouse connector ingests metadata, lineage, and profiler metrics from ClickHouse databases. It supports capturing materialized views and materialized models accurately using regex parsing."
+        "content": "The ClickHouse connector ingests metadata, lineage, and profiler metrics from ClickHouse databases. It supports capturing materialized views and materialized models accurately using regex parsing. Recent improvements (PR #27628) have hardened the Materialized View regex to handle complex REFRESH EVERY interval expressions."
+    },
+    {
+        "url": "https://vercel.com/docs/plugins/ai-coding-agents",
+        "title": "Vercel Plugin for AI Coding Agents",
+        "content": "The Vercel plugin gives supported AI coding tools Vercel-specific context, skills, agents, and slash commands. Installation: `npx plugins add vercel/vercel-plugin`. After installation, session context is injected automatically for empty directories and detected Vercel or Next.js projects."
+    },
+    {
+        "url": "https://truthly.ai/rag-dashboard",
+        "title": "Truthly Metadata RAG Dashboard",
+        "content": "The Truthly RAG Dashboard provides dynamic statistics for metadata knowledge nodes and lineage links. It integrates a local RAG engine with a BM25-style search scorer to retrieve relevant documentation from a 315KB offline knowledge base containing over 100 documentation entries."
+    },
+    {
+        "url": "https://docs.open-metadata.org/sdk/ai-sdk",
+        "title": "OpenMetadata AI SDK",
+        "content": "The OpenMetadata AI SDK allows developers to build and embed custom AI agents with programmatic access to Collate and OpenMetadata through MCP tools across Python, TypeScript, Java, and CLI. It enables features like natural language search and automated metadata tagging."
     }
 ]

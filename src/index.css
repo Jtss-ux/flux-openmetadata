@@ -8,9 +8,11 @@
   --color-neon-magenta: #ff00ff;
   --color-neon-orange:  #ff7f00;
   --color-neon-green:   #00ff88;
+  --color-neon-neon:    #ccff00;
   --glow-cyan:    0 0 8px rgba(0,255,255,0.6), 0 0 20px rgba(0,255,255,0.3);
   --glow-magenta: 0 0 8px rgba(255,0,255,0.6), 0 0 20px rgba(255,0,255,0.3);
   --glow-orange:  0 0 8px rgba(255,127,0,0.6), 0 0 20px rgba(255,127,0,0.3);
+  --glow-neon:    0 0 8px rgba(204,255,0,0.6), 0 0 20px rgba(204,255,0,0.3);
 }
 
 /* ─── Reset & Base ───────────────────────────────────────────────────────── */
@@ -152,7 +154,7 @@ nav.sidebar-nav {
 /* ─── Stats Row ──────────────────────────────────────────────────────────── */
 .stats-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.85rem;
   flex-shrink: 0;
 }
@@ -185,6 +187,7 @@ nav.sidebar-nav {
 .stat-value.cyan    { color: var(--color-neon-cyan);    text-shadow: var(--glow-cyan); }
 .stat-value.magenta { color: var(--color-neon-magenta); text-shadow: var(--glow-magenta); }
 .stat-value.orange  { color: var(--color-neon-orange);  text-shadow: var(--glow-orange); }
+.stat-value.neon    { color: var(--color-neon-neon);    text-shadow: var(--glow-neon); }
 .stat-value.white   { color: #fff; }
 
 /* ─── Chat Area ──────────────────────────────────────────────────────────── */

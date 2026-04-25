@@ -12,8 +12,20 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { query, topK } = req.body;
+    const { query, topK, type } = req.body;
     
+    // Support stats requests
+    if (type === 'stats') {
+        try {
+            engine.loadDataset();
+            const stats = engine.getStats();
+            return res.status(200).json(stats);
+        } catch (err) {
+            console.error(`[API] Error fetching stats:`, err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+    }
+
     if (!query) {
         return res.status(400).json({ error: 'Query is required' });
     }

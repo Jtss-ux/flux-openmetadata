@@ -35,6 +35,7 @@ function App() {
   const [stats, setStats] = useState({
     entities: '—',
     lineage:  '45,102',
+    knowledgeNodes: '20',
     quality:  '98.2%',
     drift:    '0.004s',
   })
@@ -46,9 +47,10 @@ function App() {
     localStorage.setItem('flux_chat_history', JSON.stringify(messages))
   }, [messages])
 
-  /* Fetch live entity count from sandbox */
+  /* Fetch live stats from sandbox and local RAG engine */
   useEffect(() => {
     const fetchStats = async () => {
+      // 1. Fetch Entity count from OpenMetadata Sandbox
       try {
         const res = await searchEntities('*')
         const count = res?.hits?.total?.value
@@ -56,6 +58,25 @@ function App() {
           setStats(prev => ({ ...prev, entities: count.toLocaleString() }))
         }
       } catch {/* sandbox may be rate-limited; keep placeholder */}
+
+      // 2. Fetch RAG stats from local engine
+      try {
+        const res = await fetch('/api/rag_search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'stats' })
+        });
+        const data = await res.json();
+        if (data && !data.error) {
+          setStats(prev => ({ 
+            ...prev, 
+            knowledgeNodes: data.knowledgeNodes?.toLocaleString() || prev.knowledgeNodes,
+            lineage: data.lineageLinks?.toLocaleString() || prev.lineage
+          }));
+        }
+      } catch (err) {
+        console.warn('[Stats] Failed to fetch RAG stats:', err);
+      }
     }
     fetchStats()
   }, [])
@@ -222,6 +243,7 @@ function App() {
         <header className="stats-row">
           <StatBox label="ENTITIES SCANNED" value={stats.entities} color="cyan"    />
           <StatBox label="LINEAGE LINKS"    value={stats.lineage}   color="magenta" />
+          <StatBox label="KNOWLEDGE NODES"  value={stats.knowledgeNodes} color="neon" />
           <StatBox label="QUALITY SCORE"    value={stats.quality}   color="orange"  />
           <StatBox label="TEMPORAL DRIFT"   value={stats.drift}     color="white"   />
         </header>
