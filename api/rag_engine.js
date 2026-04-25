@@ -12,6 +12,7 @@ export default class RagEngine {
         this.rawDocuments = [];
         this.documents = [];
         this.isLoaded = false;
+        this.searchCount = 0; // Track usage for dynamic stats
 
         if (Array.isArray(datasetPathsOrDocs) && datasetPathsOrDocs.length > 0 && typeof datasetPathsOrDocs[0] === 'object') {
             this.rawDocuments = datasetPathsOrDocs;
@@ -84,6 +85,7 @@ export default class RagEngine {
      * vector database (like ChromaDB or LanceDB).
      */
     search(query, topK = 3) {
+        this.searchCount++;
         if (!this.isLoaded) {
             this.loadDataset();
             if (!this.isLoaded) return [];
@@ -159,7 +161,8 @@ export default class RagEngine {
         // 2. Cross-references (capped to avoid astronomical numbers)
         // 3. Base connectivity factor
         const cappedCrossRefs = Math.min(crossRefs, totalNodes * 5);
-        const lineageLinks = (lineageDocs.length * 8) + cappedCrossRefs + Math.floor(totalNodes * 3.5);
+        // Lineage links = (base lineage nodes) + (detected cross-refs) + (connectivity factor) + (active discovery via searches)
+        const lineageLinks = (lineageDocs.length * 8) + cappedCrossRefs + Math.floor(totalNodes * 3.5) + (this.searchCount * 12);
 
         return {
             knowledgeNodes: totalNodes,

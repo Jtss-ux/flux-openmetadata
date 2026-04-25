@@ -17,7 +17,7 @@ export default async function handler(req, res) {
     if (type === 'stats') {
         try {
             const stats = engine.getStats();
-            return res.status(200).json(stats);
+            return res.status(200).json({ ...stats, searchCount: engine.searchCount });
         } catch (err) {
             console.error(`[API] Error fetching stats:`, err);
             return res.status(500).json({ error: 'Internal Server Error' });
