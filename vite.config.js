@@ -10,7 +10,11 @@ export default defineConfig({
         target: 'https://sandbox.open-metadata.org',
         changeOrigin: true,
         secure: true,
-        // /api/v1/... → https://sandbox.open-metadata.org/api/v1/...
+      },
+      '/api/rag_search': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+        secure: false,
       }
     }
   }

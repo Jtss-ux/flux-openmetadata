@@ -12,6 +12,7 @@ const HIGH_ENERGY_GREETINGS = [
   "GREAT SCOTT! HELLLOOOO! My circuits are buzzing with your energy! What can I navigate for you today?",
   "WOOHOO! Greetings, enthusiastic time traveler! The flux capacitor is fully charged! How can I assist?",
   "GREETINGS!!! I am detecting massive temporal energy from your message! Let's search some data!",
+  "1.21 GIGAWATTS! That's a lot of enthusiasm! I'm ready to scan the metadata universe with you!",
 ]
 
 const NORMAL_GREETINGS = [
@@ -19,11 +20,13 @@ const NORMAL_GREETINGS = [
   "Hello there! My sensors are fully active. Need to trace some data lineage or find a specific dashboard?",
   "Initiating handshake protocol... Hello! I'm FLUX://, ready to search the metadata universe. What are we looking for?",
   "Temporal systems online. Hi! I'm here to assist you with data quality, governance, and discovery. Ask away!",
+  "Road? Where we are going, we don't need roads... but we DO need good metadata. How can I help?",
 ]
 
 const HIGH_ENERGY_FEELINGS = [
   "I AM OPERATING AT MAXIMUM OVERDRIVE! THE FLUX CAPACITOR IS SURGING! LET'S GOOO!",
   "INCREDIBLE! My chronometers are spinning out of control! I feel absolutely electric!",
+  "I feel like I just hit 88 miles per hour! Everything is crystal clear in the metadata timeline!",
 ]
 
 const NORMAL_FEELINGS = [

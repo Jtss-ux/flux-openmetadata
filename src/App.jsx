@@ -21,12 +21,19 @@ const SUGGESTIONS = [
 function App() {
   const [query, setQuery]           = useState('')
   const [activeNav, setActiveNav]   = useState('chat')
+  const getGreeting = () => {
+    const hour = new Date().getHours()
+    if (hour < 12) return "GOOD MORNING, MCFLY! The temporal circuits are prime for early discovery. I am FLUX:// — your Conversational Metadata Navigator."
+    if (hour < 18) return "GOOD AFTERNOON! The flux capacitor is at 88% capacity and climbing! I am FLUX:// — your Conversational Metadata Navigator."
+    return "GREAT SCOTT! It's getting late in the timeline! I am FLUX:// — your Conversational Metadata Navigator, powered by the OpenMetadata MCP Server."
+  }
+
   const [messages, setMessages]     = useState(() => {
     const saved = localStorage.getItem('flux_chat_history');
     if (saved) return JSON.parse(saved);
     return [{
       role: 'assistant',
-      text: 'GREAT SCOTT! I am FLUX:// — your Conversational Metadata Navigator, powered by the OpenMetadata MCP Server.\n\nI can search data assets, trace lineage, check data quality, and surface governance policies. Ask me anything about your data catalog.',
+      text: getGreeting() + '\n\nI can search data assets, trace lineage, check data quality, and surface governance policies. Ask me anything about your data catalog.',
       tool: null,
       ts: Date.now(),
     }];
@@ -134,7 +141,7 @@ function App() {
             let promptText = `You are FLUX://, a retro-futuristic data navigator chatbot. Keep your response concise, helpful, and slightly sci-fi themed. The user says: "${q}"`;
             
             if (intent.type === 'DOCUMENTATION') {
-              const docsContext = result.map(doc => `[Source: ${doc.title || doc.url}]\n${doc.content}`).join('\n\n');
+              const docsContext = result.map(doc => `[Source: ${doc.docTitle || doc.title || doc.url}]\n${doc.text || doc.markdown || doc.content}`).join('\n\n');
               promptText += `\n\nHere is some documentation retrieved from the database that might be relevant:\n${docsContext}\n\nPlease answer the user's query. Use the provided documentation if it is relevant and reliable, but also feel free to use your own broad knowledge if needed to give the best answer. Cite the sources if you use the provided documentation.`;
             }
 
