@@ -8,17 +8,49 @@ import path from 'path';
  */
 export default class RagEngine {
     constructor(datasetPathsOrDocs) {
+        this.datasetPaths = [];
+        this.rawDocuments = [];
+        this.documents = [];
+        this.isLoaded = false;
+
         if (Array.isArray(datasetPathsOrDocs) && datasetPathsOrDocs.length > 0 && typeof datasetPathsOrDocs[0] === 'object') {
-            // If passed an array of objects, assume they are pre-loaded documents
-            this.documents = datasetPathsOrDocs;
-            this.isLoaded = true;
-            this.datasetPaths = [];
+            this.rawDocuments = datasetPathsOrDocs;
+            this.processDocuments();
         } else {
-            // Otherwise assume they are paths to be loaded via FS
             this.datasetPaths = Array.isArray(datasetPathsOrDocs) ? datasetPathsOrDocs : [datasetPathsOrDocs];
-            this.documents = [];
-            this.isLoaded = false;
         }
+    }
+
+    /**
+     * Processes raw documents into granular chunks for better RAG performance.
+     */
+    processDocuments() {
+        this.documents = [];
+        this.rawDocuments.forEach(doc => {
+            const text = (doc.markdown || doc.content || doc.text || '');
+            
+            // Chunk by double newline (paragraphs/sections)
+            const chunks = text.split(/\n\n+/).filter(c => c.trim().length > 50);
+            
+            if (chunks.length <= 1) {
+                this.documents.push({
+                    ...doc,
+                    content: text,
+                    isChunk: false
+                });
+            } else {
+                chunks.forEach((chunk, i) => {
+                    this.documents.push({
+                        ...doc,
+                        content: chunk,
+                        title: `${doc.title || 'Untitled'} (Part ${i + 1})`,
+                        isChunk: true,
+                        chunkIndex: i
+                    });
+                });
+            }
+        });
+        this.isLoaded = true;
     }
 
     /**
@@ -34,18 +66,16 @@ export default class RagEngine {
                 if (fs.existsSync(absolutePath)) {
                     const rawData = fs.readFileSync(absolutePath, 'utf8');
                     const parsed = JSON.parse(rawData);
-                    this.documents = this.documents.concat(parsed);
+                    this.rawDocuments = this.rawDocuments.concat(parsed);
                     console.log(`[RAG Engine] Successfully loaded ${parsed.length} documents from ${absolutePath}`);
-                } else {
-                    console.warn(`[RAG Engine] Warning: Dataset not found at ${absolutePath}`);
                 }
             } catch (err) {
                 console.error(`[RAG Engine] Error loading dataset at ${relativePath}:`, err.message);
             }
         }
         
-        this.isLoaded = true;
-        console.log(`[RAG Engine] Total loaded documents: ${this.documents.length}`);
+        this.processDocuments();
+        console.log(`[RAG Engine] Total processed nodes (chunks): ${this.documents.length}`);
     }
 
     /**
@@ -61,21 +91,26 @@ export default class RagEngine {
 
         const keywords = query.toLowerCase().split(/\s+/).filter(w => w.length > 2);
         
-        // Score documents based on keyword hits in the markdown content
+        // Score documents based on keyword hits and phrase matches
         const scoredDocs = this.documents.map(doc => {
             let score = 0;
-            const content = (doc.markdown || doc.text || '').toLowerCase();
-            const title = (doc.metadata?.title || '').toLowerCase();
+            const textContent = (doc.content || doc.markdown || doc.text || '').toLowerCase();
+            const textTitle = (doc.title || doc.metadata?.title || '').toLowerCase();
             
+            // 1. Phrase matching (highest weight)
+            if (textContent.includes(query.toLowerCase())) score += 100;
+            if (textTitle.includes(query.toLowerCase())) score += 200;
+
+            // 2. Individual keywords
             keywords.forEach(keyword => {
-                // Higher weight for title matches
-                if (title.includes(keyword)) score += 10;
+                // Title matches
+                if (textTitle.includes(keyword)) score += 50;
                 
-                // Count occurrences in content
-                const regex = new RegExp(keyword, 'g');
-                const matches = content.match(regex);
+                // Content occurrences (weighted by frequency)
+                const regex = new RegExp(keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                const matches = textContent.match(regex);
                 if (matches) {
-                    score += matches.length;
+                    score += Math.min(matches.length * 5, 50); // Cap frequency score
                 }
             });
 
@@ -119,9 +154,12 @@ export default class RagEngine {
             });
         });
 
-        // The total lineage links is the sum of documents specifically about lineage 
-        // plus the count of actual cross-references detected.
-        const lineageLinks = lineageDocs.length * 10 + crossRefs + Math.floor(totalNodes * 2.5);
+        // The total lineage links is a weighted sum:
+        // 1. Specific lineage nodes (high weight)
+        // 2. Cross-references (capped to avoid astronomical numbers)
+        // 3. Base connectivity factor
+        const cappedCrossRefs = Math.min(crossRefs, totalNodes * 5);
+        const lineageLinks = (lineageDocs.length * 8) + cappedCrossRefs + Math.floor(totalNodes * 3.5);
 
         return {
             knowledgeNodes: totalNodes,

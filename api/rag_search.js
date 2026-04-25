@@ -1,6 +1,6 @@
 import RagEngine from './rag_engine.js';
-import omniData from './omni_rag_knowledge_base.json' assert { type: 'json' };
-import firecrawlData from './firecrawl_rag_knowledge_base.json' assert { type: 'json' };
+import omniData from './omni_rag_knowledge_base.json' with { type: 'json' };
+import firecrawlData from './firecrawl_rag_knowledge_base.json' with { type: 'json' };
 
 // Initialize the RAG engine with pre-loaded data for production stability
 const engine = new RagEngine([...omniData, ...firecrawlData]);
