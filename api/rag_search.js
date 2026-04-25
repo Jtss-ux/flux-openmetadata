@@ -1,10 +1,9 @@
 import RagEngine from './rag_engine.js';
+import omniData from './omni_rag_knowledge_base.json' assert { type: 'json' };
+import firecrawlData from './firecrawl_rag_knowledge_base.json' assert { type: 'json' };
 
-// Initialize the RAG engine pointing to our JSON datasets
-const engine = new RagEngine([
-    'omni_rag_knowledge_base.json',
-    'firecrawl_rag_knowledge_base.json'
-]);
+// Initialize the RAG engine with pre-loaded data for production stability
+const engine = new RagEngine([...omniData, ...firecrawlData]);
 
 export default async function handler(req, res) {
     // Only allow POST requests
@@ -17,7 +16,6 @@ export default async function handler(req, res) {
     // Support stats requests
     if (type === 'stats') {
         try {
-            engine.loadDataset();
             const stats = engine.getStats();
             return res.status(200).json(stats);
         } catch (err) {
@@ -32,9 +30,6 @@ export default async function handler(req, res) {
 
     try {
         console.log(`[API] Received search query: "${query}"`);
-
-        // Load the dataset into memory if it hasn't been loaded yet
-        engine.loadDataset();
 
         // Perform the semantic/keyword search
         const results = engine.search(query, topK || 3);

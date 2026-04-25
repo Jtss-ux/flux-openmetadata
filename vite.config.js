@@ -6,12 +6,11 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': {
+      '/api/v1': {
         target: 'https://sandbox.open-metadata.org',
         changeOrigin: true,
         secure: true,
         // /api/v1/... → https://sandbox.open-metadata.org/api/v1/...
-        // No rewrite needed: the path already starts with /api which the sandbox expects
       }
     }
   }
